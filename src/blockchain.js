@@ -64,8 +64,15 @@ class Blockchain {
      */
     _addBlock(block) {
         let self = this;
+
         return new Promise(async (resolve, reject) => {
             try {
+                const errorLog = await self.validateChain();
+
+                if (errorLog.length > 0) {
+                    throw new Error(errorLog.toString())
+                }
+
                 block.height = self.chain.length;
                 block.time = new Date().getTime().toString().slice(0, -3);
 
@@ -133,13 +140,8 @@ class Blockchain {
                         owner: address
                     }
                 });
+
                 let addedBlock = await this._addBlock(block);
-
-                const errorLog = await this.validateChain();
-
-                if (errorLog.length > 0) {
-                    throw new Error(errorLog.toString())
-                }
 
                 // 6. Resolve with the block added.
                 resolve(addedBlock)
